@@ -1,6 +1,7 @@
 import "server-only";
 import { supabaseAdmin } from "./supabase-admin";
 import { copy } from "../copy";
+import { TOTAL_NUMBERS } from "../raffle-config";
 import type { ActivityEntry, BoardNumber, DrawLinkSetting, SaleDetail, SaleRow } from "../types";
 
 type BuyerEmbed = { name: string; phone: string } | { name: string; phone: string }[] | null;
@@ -14,6 +15,7 @@ export async function getBoard(): Promise<BoardNumber[]> {
   const { data, error } = await supabaseAdmin()
     .from("raffle_numbers")
     .select("number, seller_name, sold_at")
+    .lte("number", TOTAL_NUMBERS)
     .order("number");
   if (error) throw error;
   return data ?? [];
@@ -23,7 +25,11 @@ export async function getBoard(): Promise<BoardNumber[]> {
 export async function getSellerNames(): Promise<string[]> {
   const db = supabaseAdmin();
   const [current, logged] = await Promise.all([
-    db.from("raffle_numbers").select("seller_name, sold_at").not("seller_name", "is", null),
+    db
+      .from("raffle_numbers")
+      .select("seller_name, sold_at")
+      .lte("number", TOTAL_NUMBERS)
+      .not("seller_name", "is", null),
     db
       .from("activity_log")
       .select("seller_name, created_at")
@@ -68,13 +74,14 @@ export async function getSale(number: number): Promise<SaleDetail | null> {
   };
 }
 
-/** All 250 numbers with buyer data when sold (for the summary, CSV and draw notice). */
+/** All TOTAL_NUMBERS numbers with buyer data when sold (for the summary, CSV and draw notice). */
 export async function getAllNumbersWithBuyers(): Promise<
   (BoardNumber & { buyer_name: string | null; phone: string | null })[]
 > {
   const { data, error } = await supabaseAdmin()
     .from("raffle_numbers")
     .select("number, seller_name, sold_at, buyers(name, phone)")
+    .lte("number", TOTAL_NUMBERS)
     .order("number");
   if (error) throw error;
   return (data ?? []).map((r) => {

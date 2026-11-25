@@ -1,16 +1,16 @@
 # Rifa Navideña (Yoli Manualidades)
 
-A mobile-first web app where sellers record, in real time, which raffle numbers (001 to 250) are sold, to whom and by whom. Built with Next.js (App Router), TypeScript, Tailwind CSS v4 and Supabase (Postgres + Realtime). Deployed on Vercel.
+A mobile-first web app where sellers record, in real time, which raffle numbers (001 to 100) are sold, to whom and by whom. Built with Next.js (App Router), TypeScript, Tailwind CSS v4 and Supabase (Postgres + Realtime). Deployed on Vercel.
 
 All code is in English. Every user-facing string is in Spanish (Peru) and lives in `src/lib/copy.ts`. Raffle details (prizes, price, draw date, contact) live in `src/lib/raffle-config.ts`.
 
 ## Features
 
 - **Login**: one shared account (`APP_USERNAME` + 4-digit PIN, bcrypt hash in `APP_PIN_HASH`). Signed httpOnly session cookie, valid for 30 days. Failed attempts are rate limited per IP (10 per 15 minutes). The account itself is never locked.
-- **Board**: 250 numbers, live updates through Supabase Realtime, plus a re-sync 2 s after connecting and every 30 s while the tab is visible. Filters (Todos, Libres, Vendidos) and jump-to-number search.
+- **Board**: 100 numbers (`totalNumbers` in `src/lib/raffle-config.ts`), live updates through Supabase Realtime, plus a re-sync 2 s after connecting and every 30 s while the tab is visible. Filters (Todos, Libres, Vendidos) and jump-to-number search.
 - **Sale**: seller name (combobox that reuses existing spellings), buyer name and phone (country picker, auto-detects `+` prefixes, validated with `libphonenumber-js` on client and server, stored as E.164). Sales are atomic in the database.
 - **Sold number**: "1. Abrir chat" (wa.me link with the message), "2. Compartir ticket" (PNG from `/api/ticket/[number]`, shared with `navigator.share` or downloaded), "Editar datos", "Liberar número" (with a confirmation dialog).
-- **Resumen**: sales per seller, sortable list of all sales, "Exportar CSV" (250 rows, Spanish headers, UTF-8 with BOM, formula injection neutralized).
+- **Resumen**: sales per seller, sortable list of all sales, "Exportar CSV" (100 rows, Spanish headers, UTF-8 with BOM, formula injection neutralized).
 - **Historial**: read-only activity log of every sale, edit, release and draw-link change.
 - **Avisar sorteo**: shared live-stream link stored in the database, buyers grouped by phone and filterable by seller, "Enviar aviso" WhatsApp buttons with per-device "Enviado ✓" marks.
 
@@ -42,9 +42,10 @@ src/assets/fonts/           Fonts bundled for the ticket image (Lobster, Nunito)
 1. Create a **new** Supabase project.
 2. Apply the migrations **in this order** (SQL Editor, or `supabase db push` with the Supabase CLI):
    1. `supabase/migrations/20261125000001_tables.sql`: tables (`raffle_numbers`, `buyers`, `activity_log`, `app_settings`, `login_failures`).
-   2. `supabase/migrations/20261125000002_seed.sql`: 250 free numbers.
+   2. `supabase/migrations/20261125000002_seed.sql`: seeds numbers 1 to 250 (the original size; migration 5 reduces them).
    3. `supabase/migrations/20261125000003_rpc_functions.sql`: RPC functions and their permissions.
    4. `supabase/migrations/20261125000004_rls_realtime.sql`: RLS, grants and the `supabase_realtime` publication.
+   5. `supabase/migrations/20261126000005_reduce_to_100_numbers.sql`: reduces the raffle to 1 to 100 (deletes rows 101 to 250, replaces the range check, updates the RPC range checks). It aborts without changing anything if any number above 100 is sold. `activity_log` is not touched.
    The migrations can be re-run safely.
 3. In **Project Settings > API**, copy the project URL, the `anon` key and the `service_role` key.
 4. Check that **Database > Publications > supabase_realtime** includes `raffle_numbers` (migration 4 adds it).
@@ -89,6 +90,10 @@ To change the PIN later: run `npm run hash-pin -- <new PIN>`, update `APP_PIN_HA
 2. In Vercel, **Add New > Project** and import the repository (framework preset: Next.js, default build settings).
 3. Add the six environment variables above for Production (and Preview if you use it).
 4. Deploy. Log in with `Usuario` / `1111` and sell a test number, then release it.
+
+## Changing the number of tickets
+
+`totalNumbers` in `src/lib/raffle-config.ts` drives the grid, counters, search, server validation, CSV and summary. The app only shows and accepts numbers 1 to `totalNumbers` and ignores any database rows above it, so the code can be deployed before the database is resized. The database range (check constraint and RPC checks) must then be changed with a migration, as in migration 5. Numbers are always shown with 3 digits (001 to 100).
 
 ## Customizing
 

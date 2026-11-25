@@ -1,6 +1,6 @@
 // All user-facing text (Spanish, Peru). Keep every UI string here.
 // Rule: no em dashes in UI text.
-import { raffleConfig } from "./raffle-config";
+import { raffleConfig, TOTAL_NUMBERS } from "./raffle-config";
 
 export const copy = {
   meta: {
@@ -44,7 +44,7 @@ export const copy = {
     filterSold: "Vendidos",
     searchPlaceholder: "Buscar número",
     searchLabel: "Ir al número",
-    searchNotFound: "Ese número no existe (1 a 250).",
+    searchNotFound: `Ese número no existe (1 a ${TOTAL_NUMBERS}).`,
     emptyFilter: "No hay números en este filtro.",
     loading: "Cargando números...",
     loadError: "No se pudieron cargar los números. Revisa tu conexión.",

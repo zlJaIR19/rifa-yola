@@ -2,7 +2,7 @@
 export const raffleConfig = {
   organizer: "Yoli Manualidades",
   raffleName: "Rifa Navideña",
-  totalNumbers: 250,
+  totalNumbers: 100,
   priceText: "1 por S/ 8 | 2 por S/ 15",
   drawDate: "Domingo 13 de diciembre de 2026",
   drawPlace: "Se realizará virtualmente en el Facebook de Yoli Manualidades",

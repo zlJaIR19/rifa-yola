@@ -15,6 +15,11 @@ type LiveState = "connecting" | "live" | "offline";
 const RESYNC_AFTER_CONNECT_MS = 2_000;
 const RESYNC_INTERVAL_MS = 30_000;
 
+/** Rows above TOTAL_NUMBERS (e.g. left over in the database) are ignored. */
+function inRange(n: number): boolean {
+  return Number.isInteger(n) && n >= 1 && n <= TOTAL_NUMBERS;
+}
+
 function emptyBoard(): BoardNumber[] {
   return Array.from({ length: TOTAL_NUMBERS }, (_, i) => ({ number: i + 1, seller_name: null, sold_at: null }));
 }
@@ -24,6 +29,7 @@ async function fetchBoard(): Promise<BoardNumber[]> {
   const { data, error } = await supabaseBrowser()
     .from("raffle_numbers")
     .select("number, seller_name, sold_at")
+    .lte("number", TOTAL_NUMBERS)
     .order("number");
   if (!error && data) return data as BoardNumber[];
   // Fallback through the server.
@@ -39,7 +45,9 @@ async function fetchBoard(): Promise<BoardNumber[]> {
 export function Board({ initial }: { initial: BoardNumber[] | null }) {
   const [numbers, setNumbers] = useState<BoardNumber[]>(() => {
     const base = emptyBoard();
-    initial?.forEach((n) => (base[n.number - 1] = n));
+    initial?.forEach((n) => {
+      if (inRange(n.number)) base[n.number - 1] = n;
+    });
     return base;
   });
   const [loaded, setLoaded] = useState(!!initial);
@@ -54,7 +62,7 @@ export function Board({ initial }: { initial: BoardNumber[] | null }) {
   const cellRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
 
   const applyRow = useCallback((row: BoardNumber) => {
-    if (!row || typeof row.number !== "number" || row.number < 1 || row.number > TOTAL_NUMBERS) return;
+    if (!row || !inRange(row.number)) return;
     setNumbers((prev) => {
       const next = prev.slice();
       next[row.number - 1] = { number: row.number, seller_name: row.seller_name, sold_at: row.sold_at };
@@ -66,7 +74,9 @@ export function Board({ initial }: { initial: BoardNumber[] | null }) {
     try {
       const rows = await fetchBoard();
       const base = emptyBoard();
-      rows.forEach((r) => (base[r.number - 1] = r));
+      rows.forEach((r) => {
+        if (inRange(r.number)) base[r.number - 1] = r;
+      });
       setNumbers(base);
       setLoaded(true);
       setLoadError(false);

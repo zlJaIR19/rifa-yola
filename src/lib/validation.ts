@@ -1,6 +1,7 @@
 import { copy } from "./copy";
 import { normalizeName } from "./seller";
 import { validateE164 } from "./phone";
+import { TOTAL_NUMBERS } from "./raffle-config";
 
 export type SaleInput = { sellerName: string; buyerName: string; phone: string };
 
@@ -31,7 +32,7 @@ export function validateSaleInput(body: unknown): ValidationResult {
 export function parseNumberParam(value: string): number | null {
   if (!/^\d{1,3}$/.test(value)) return null;
   const n = Number(value);
-  return n >= 1 && n <= 250 ? n : null;
+  return n >= 1 && n <= TOTAL_NUMBERS ? n : null;
 }
 
 export function isValidHttpsUrl(value: string): boolean {
