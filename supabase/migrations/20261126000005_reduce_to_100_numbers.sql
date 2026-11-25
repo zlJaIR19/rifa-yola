@@ -35,7 +35,7 @@ begin
     raise exception
       'Cannot reduce the raffle to 100 numbers: these numbers above 100 are sold: %',
       array_to_string(v_sold, ', ')
-      using hint = 'Release those numbers in the app (or move the sales to numbers 1 to 100) and run this migration again.';
+      using hint = 'The app no longer shows numbers above 100. Contact those buyers, then release each number with: select public.release_number(<number>);  (it is logged in activity_log). Then run this migration again.';
   end if;
 
   -- 2. Delete numbers 101 to 250 (buyers rows would cascade; the check above ensures there are none).
