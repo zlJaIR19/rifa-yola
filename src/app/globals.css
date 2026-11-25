@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pine-950: #08361b;
+  --color-pine-900: #0b4523;
+  --color-pine-800: #0f5a2e;
+  --color-pine-700: #1b7a3e;
+  --color-pine-600: #23914b;
+  --color-berry-700: #9e0b23;
+  --color-berry-600: #c8102e;
+  --color-berry-500: #dc2f45;
+  --color-gold-400: #f2c14e;
+  --color-gold-300: #f7d27a;
+  --color-gold-600: #b8860b;
+  --color-cream-50: #fffbf3;
+  --color-cream-100: #fff6e5;
+  --color-cream-200: #f7e8c9;
+  --color-ink: #2b2118;
+  --color-ink-soft: #6b5b4b;
+  --color-wa: #1fa855;
+  --color-wa-dark: #178a45;
+
+  --font-script: var(--font-lobster), "Lobster", cursive;
+  --font-sans: var(--font-nunito), "Nunito", ui-rounded, system-ui, sans-serif;
+}
+
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  color: var(--color-ink);
+  background-color: var(--color-pine-800);
+  /* Subtle snowflake and pine pattern on the deep green background. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M30 18v24M19.6 24l20.8 12M19.6 36l20.8-12'/%3E%3Cpath d='M112 92v20M103 97l18 10M103 107l18-10'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M130 20l10 16h-6l8 12h-7l8 12h-26l8-12h-7l8-12h-6z'/%3E%3Cpath d='M40 104l9 14h-5l7 11h-6l7 11H28l7-11h-6l7-11h-5z'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.12'%3E%3Ccircle cx='80' cy='50' r='1.6'/%3E%3Ccircle cx='150' cy='130' r='1.4'/%3E%3Ccircle cx='10' cy='80' r='1.2'/%3E%3Ccircle cx='86' cy='146' r='1.5'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(ellipse at top, var(--color-pine-700) 0%, var(--color-pine-800) 55%, var(--color-pine-900) 100%);
+  background-attachment: fixed;
+  font-family: var(--font-sans);
+}
+
+/* Ribbon-style section title, like "1er Premio" on the flyer. */
+.ribbon {
+  position: relative;
+  display: inline-block;
+  background: var(--color-berry-600);
+  color: var(--color-cream-100);
+  font-family: var(--font-script);
+  padding: 0.2rem 1.4rem 0.35rem;
+  line-height: 1.2;
+  box-shadow: 0 3px 0 var(--color-berry-700);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.6rem) 50%, 100% 100%, 0 100%, 0.6rem 50%);
+}
+
+.card {
+  background: var(--color-cream-100);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 10px 24px -8px rgba(0, 0, 0, 0.45);
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
